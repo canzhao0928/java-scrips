@@ -62,8 +62,10 @@ const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
 
-function displaymovement(movements) {
+function displaymovement(movs, sort = false) {
   containerMovements.innerHTML = "";
+
+  const movements = sort ? movs.slice().sort((a, b) => a - b) : movs
   movements.forEach((move, i) => {
     const html = `<div class="movements__row">
                   <div class="movements__type movements__type--${move > 0 ? "deposit" : "withdrawal"}">${i} ${move > 0 ? "deposit" : "withdrawal"}</div>
@@ -88,6 +90,13 @@ const calcDisplaySummary = function (acc) {
   labelSumOut.textContent = `${Math.abs(withdrawal)}€`;
   labelSumInterest.textContent = `${interest}€`;
 }
+
+let sort = false
+btnSort.addEventListener("click", (event) => {
+  event.preventDefault();
+  sort = !sort;
+  displaymovement(currentAccount.movements, sort);
+})
 
 const updateUI = function (acc) {
   displaymovement(acc.movements);
@@ -138,8 +147,34 @@ btnTransfer.addEventListener("click", (e) => {
     currentAccount.movements.push(-amount)
     //update the current account
     updateUI(currentAccount)
+
   }
 })
+
+btnLoan.addEventListener("click", (event) => {
+  event.preventDefault();
+  const amount = Number(inputLoanAmount.value);
+  if (amount > 0 && currentAccount.movements.some(mov => mov > amount * 0.1)) {
+    //update movements
+    currentAccount.movements.push(amount);
+    console.log(currentAccount);
+    //update UI
+    updateUI(currentAccount);
+  }
+  inputLoanAmount.value = "";
+})
+
+btnClose.addEventListener("click", (event) => {
+  event.preventDefault();
+  if (currentAccount.pin === Number(inputClosePin.value) && currentAccount.username === inputCloseUsername.value) {
+    accounts.splice(accounts.findIndex(acc => acc === currentAccount), 1)
+    //hidde UI
+    containerApp.setAttribute("style", "opacity: 0");
+    inputCloseUsername.value = "";
+    inputClosePin.value = "";
+  }
+})
+
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // LECTURES
@@ -156,3 +191,9 @@ const deposit = movements.filter(value => value > 0).map(value => value * 1.1).r
 // console.log(deposit);
 
 /////////////////////////////////////////////////
+
+
+const allmovement = [];
+accounts.forEach((acc) => { allmovement.push(acc.movements) })
+
+console.log(allmovement.flat());
