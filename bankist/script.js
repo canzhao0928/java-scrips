@@ -101,14 +101,14 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
-function formateMovementsDate(date) {
+function formateMovementsDate(date, locale) {
   const daysPassed = Math.floor(Math.abs(new Date() - date) / (1000 * 60 * 60 * 24))
   if (daysPassed === 0) return "Today"
   // less than 24 hours but anohter day,this function
   if (daysPassed === 1) return "Yesterday"
   if (daysPassed <= 7) return `${daysPassed} days ago`
   else {
-    return date.toLocaleString("en-GB", { year: 'numeric', month: 'numeric', day: 'numeric' })
+    return date.toLocaleString(locale, { year: 'numeric', month: 'numeric', day: 'numeric' })
   }
 }
 
@@ -117,11 +117,16 @@ function displaymovement(acc, sort = false) {
 
   const movements = sort ? acc.movements.slice().sort((a, b) => a - b) : acc.movements
   movements.forEach((move, i) => {
-    const date = formateMovementsDate(new Date(acc.movementsDates[i]));
+    const options = {
+      style: "currency",
+      currency: acc.currency
+    }
+    const formateMovement = new Intl.NumberFormat(acc.locale, options).format(move)
+    const date = formateMovementsDate(new Date(acc.movementsDates[i]), acc.locale);
     const html = `<div class="movements__row">
                   <div class="movements__type movements__type--${move > 0 ? "deposit" : "withdrawal"}">${i} ${move > 0 ? "deposit" : "withdrawal"}</div>
                   <div class="movements__date">${date}</div>
-                  <div class="movements__value">${move.toFixed(2)}€</div>
+                  <div class="movements__value">${formateMovement}</div>
                 </div>`
     containerMovements.insertAdjacentHTML("afterbegin", html)
   });
@@ -155,6 +160,34 @@ const updateUI = function (acc) {
   calcDisplayBalance(acc);
   calcDisplaySummary(acc);
 }
+let timer = false;
+
+function startTimer(params) {
+  if (timer) {
+    console.log(timer);
+    clearInterval(timer)
+  }
+
+  const countdown = function () {
+    // different method to set two - digit
+    labelTimer.textContent = `${Math.floor(startTime / 60).toLocaleString('en-US', {
+      minimumIntegerDigits: 2,
+      useGrouping: false
+    })}:${String(startTime % 60).padStart(2, 0)}`
+
+    if (startTime === 0) {
+      labelWelcome.textContent = 'Log in to get started';
+      containerApp.setAttribute("style", "opacity: 0");
+      clearInterval(timer)
+    }
+    startTime--
+
+  }
+
+  let startTime = 300
+  countdown()
+  timer = setInterval(countdown, 1000);
+}
 
 // const username = account1.owner.toLowerCase().split(" ").map(name => name[0]).join("")
 // console.log(username);
@@ -179,9 +212,13 @@ btnLogin.addEventListener("click", (e) => {
     inputLoginUsername.value = "";
     inputLoginPin.value = "";
     //update time
-    labelDate.textContent = new Date().toLocaleString('en-GB');
+    labelDate.textContent = new Date().toLocaleString(currentAccount.locale);
     //blur cursor
     inputLoginPin.blur();
+
+    //start the timer
+    startTimer()
+
   }
 
 })
@@ -203,6 +240,7 @@ btnTransfer.addEventListener("click", (e) => {
     currentAccount.movementsDates.push(new Date())
     //update the current account
     updateUI(currentAccount)
+    startTimer()
 
   }
 })
@@ -211,14 +249,17 @@ btnLoan.addEventListener("click", (event) => {
   event.preventDefault();
   const amount = Number(inputLoanAmount.value);
   if (amount > 0 && currentAccount.movements.some(mov => mov > amount * 0.1)) {
-    //update movements
-    currentAccount.movements.push(amount);
-    currentAccount.movementsDates.push(new Date());
-    console.log(currentAccount);
-    //update UI
-    updateUI(currentAccount);
+    //after 2.5s
+    setTimeout(() => {
+      //update movements
+      currentAccount.movements.push(amount);
+      currentAccount.movementsDates.push(new Date());
+      //update UI
+      updateUI(currentAccount);
+    }, 2500)
   }
   inputLoanAmount.value = "";
+  startTimer()
 })
 
 btnClose.addEventListener("click", (event) => {
@@ -250,7 +291,7 @@ const deposit = movements.filter(value => value > 0).map(value => value * 1.1).r
 /////////////////////////////////////////////////
 
 
-const allmovement = [];
-accounts.forEach((acc) => { allmovement.push(acc.movements) })
+// const allmovement = [];
+// accounts.forEach((acc) => { allmovement.push(acc.movements) })
 
-console.log(allmovement.flat());
+// console.log(allmovement.flat());
