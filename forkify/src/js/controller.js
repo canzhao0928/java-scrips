@@ -4,6 +4,7 @@ import recipeView from "./views/recipeView.js"
 import searchView from "./views/searchView"
 import resultView from "./views/ResultView"
 import paginationView from "./views/PaginationView"
+import bookmarkView from "./views/bookmarkView"
 import "core-js/stable"
 import "regenerator-runtime/runtime"
 import { async } from "regenerator-runtime";
@@ -35,6 +36,7 @@ const controlRecipe = async function () {
 
 const controlSearchResult = async function () {
   try {
+
     //get query value
     const query = searchView.getQuery()
     if (!query) return
@@ -64,11 +66,24 @@ const controlServing = function (servings) {
   recipeView.update(model.state.recipe)
 }
 
+const updateBookmark = function (recipe) {
+  model.updateBookmark(recipe)
+  console.log(model.state.bookmark);
+
+}
+
+const controlBookmark = function () {
+  bookmarkView.render(model.state)
+}
+
 const initial = function () {
   recipeView.addHandleRender(controlRecipe)
   searchView.addHandleClick(controlSearchResult)
   paginationView.addHandleClick(controlPagination)
   recipeView.addHandleServings(controlServing)
+  recipeView.addHandleBookmarkIcon(updateBookmark)
+  bookmarkView.addHandleMouseover(controlBookmark)
+  bookmarkView.addHandleClick(controlRecipe)
 }
 initial()
 

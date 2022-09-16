@@ -3,11 +3,11 @@ import View from "./view";
 import { Fraction } from "fractional"
 
 class recipeView extends View {
-    _parentEL = document.querySelector('.recipe')
-    _errorMessage = "we could not find the recipe, please try another one."
+  _parentEL = document.querySelector('.recipe')
+  _errorMessage = "we could not find the recipe, please try another one."
 
-    _generateMakeup() {
-        return `<figure class="recipe__fig">
+  _generateMakeup() {
+    return `<figure class="recipe__fig">
         <img src=${this._data.image_url} alt=${this._data.title} class="recipe__img" />
         <h1 class="recipe__title">
           <span>${this._data.title}</span>
@@ -48,9 +48,9 @@ class recipeView extends View {
             <use href="${icons.pathname}#icon-user"></use>
           </svg>
         </div>
-        <button class="btn--round">
+        <button class="btn--round btn--bookmark">
           <svg class="">
-            <use href="${icons.pathname}#icon-bookmark-fill"></use>
+            <use href="${icons.pathname}#icon-bookmark${this._data.bookmarked ? "-fill" : ""}"></use>
           </svg>
         </button>
       </div>
@@ -66,7 +66,7 @@ class recipeView extends View {
         <h2 class="heading--2">How to cook it</h2>
         <p class="recipe__directions-text">
           This recipe was carefully designed and tested by
-          <span class="recipe__publisher">The Pioneer Woman</span>. Please check out
+          <span class="recipe__publisher">${this._data.publisher}</span>. Please check out
           directions at their website.
         </p>
         <a
@@ -80,11 +80,11 @@ class recipeView extends View {
           </svg>
         </a>
       </div>`
-    }
+  }
 
-    _generateMakeupIngredient(ingredient) {
+  _generateMakeupIngredient(ingredient) {
 
-        return `<li class="recipe__ingredient">
+    return `<li class="recipe__ingredient">
           <svg class="recipe__icon">
             <use href="${icons.pathname}#icon-check"></use>
           </svg>
@@ -94,21 +94,31 @@ class recipeView extends View {
             ${ingredient.description}
           </div>
         </li>`
-    }
+  }
 
-    addHandleRender(handler) {
-        ['hashchange', 'load'].forEach(ev => window.addEventListener(ev, handler));
-    }
+  addHandleRender(handler) {
+    ['hashchange', 'load'].forEach(ev => window.addEventListener(ev, handler));
+  }
 
-    addHandleServings(handler) {
-        this._parentEL.addEventListener("click", (e) => {
-            if (!e.target.closest(".btn--tiny")) return
-            const newServings = +e.target.closest(".btn--tiny").dataset.updateTo;
+  addHandleServings(handler) {
+    this._parentEL.addEventListener("click", (e) => {
+      if (!e.target.closest(".btn--tiny")) return
+      const newServings = +e.target.closest(".btn--tiny").dataset.updateTo;
 
-            if (newServings > 0) handler(newServings)
-        })
+      if (newServings > 0) handler(newServings)
+    })
+  }
 
-    }
+  addHandleBookmarkIcon(handler) {
+    this._parentEL.addEventListener("click", (e) => {
+      if (!e.target.closest(".btn--bookmark")) return
+      // let icon = e.target.closest(".btn--bookmark").querySelector("svg use").href.baseVal.split("#")[1]
+      // // if (icon === "icon-bookmark-fill") handler(window.location.hash.slice(1))
+      // icon = icon === 'icon-bookmark-fill' ? 'icon-bookmark' : 'icon-bookmark-fill'
+      // e.target.closest(".btn--bookmark").querySelector("svg use").href.baseVal = `${icons.pathname}#${icon}`
+      handler(this._data)
+    })
+  }
 }
 
-export default recipeView = new recipeView()
+export default new recipeView()
