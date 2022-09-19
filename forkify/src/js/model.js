@@ -17,8 +17,9 @@ export const loadRecipe = async function (rid) {
     try {
         const data = await getJSON(`${API_URL}/${rid}`)
         state.recipe = data.data.recipe;
+        // console.log(state.recipe);
         if (state.bookmark.some(bkmark => bkmark.id === rid)) state.recipe.bookmarked = true
-        else (state.recipe.bookmarked = false)
+        else { state.recipe.bookmarked = false }
 
     } catch (error) {
         console.error(error);
@@ -55,18 +56,15 @@ export const updateServings = function (newServings) {
 
 }
 
-export const updateBookmark = function (recipe) {
-    const bookmark = {
-        id: recipe.id,
-        image_url: recipe.image_url,
-        title: recipe.title,
-        publisher: recipe.publisher
-    }
-    const included = state.bookmark.some(bkmark => bookmark.id = bkmark.id)
-    if (icon === 'icon-bookmark-fill' && !included) {
-        state.bookmark.push(bookmark);
-    }
-    if (icon === 'icon-bookmark' && included) {
-        state.bookmark = state.bookmark.filter(bkmark => bkmark.id !== bookmark.id)
-    }
+export const addBookmark = function (recipe) {
+    const included = state.bookmark.some(bkmark => recipe.id === bkmark.id)
+    console.log("included" + included);
+    if (!included) state.bookmark.push(recipe);
+    state.recipe.bookmarked = true;
+    console.log(state.bookmark);
+}
+
+export const removeBookmark = function (id) {
+    state.bookmark = state.bookmark.filter(bkmark => bkmark.id !== id)
+    state.recipe.bookmarked = false;
 }

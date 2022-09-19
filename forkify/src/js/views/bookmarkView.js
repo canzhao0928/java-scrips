@@ -3,9 +3,10 @@ const icons = new URL('../../img/icons.svg', import.meta.url);
 
 class BookmarkView extends View {
   _parentEL = document.querySelector(".bookmarks__list")
+
+
   _generateMakeup() {
-    console.log(this._data.bookmark);
-    if (this._data.bookmark.length === 0)
+    if (this._data.length === 0)
       return ` <div class="message">
         <div>
           <svg>
@@ -17,8 +18,7 @@ class BookmarkView extends View {
         </p>
       </div>`
     else {
-      console.log(this._data.bookmark.map(this._generateBookmark).join(""));
-      return this._data.bookmark.map(this._generateBookmark).join("")
+      return this._data.map(this._generateBookmark).join("")
     }
 
 

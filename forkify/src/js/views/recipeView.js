@@ -112,11 +112,8 @@ class recipeView extends View {
   addHandleBookmarkIcon(handler) {
     this._parentEL.addEventListener("click", (e) => {
       if (!e.target.closest(".btn--bookmark")) return
-      // let icon = e.target.closest(".btn--bookmark").querySelector("svg use").href.baseVal.split("#")[1]
-      // // if (icon === "icon-bookmark-fill") handler(window.location.hash.slice(1))
-      // icon = icon === 'icon-bookmark-fill' ? 'icon-bookmark' : 'icon-bookmark-fill'
-      // e.target.closest(".btn--bookmark").querySelector("svg use").href.baseVal = `${icons.pathname}#${icon}`
       handler(this._data)
+
     })
   }
 }
